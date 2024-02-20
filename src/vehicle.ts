@@ -11,6 +11,7 @@ export type Vehicle = {
   radius: number;
   maxspeed: number;
   maxforce: number;
+  fled: boolean;
 };
 
 export const createVehicle = (p5: P5, x: number, y: number): Vehicle => {
@@ -25,6 +26,7 @@ export const createVehicle = (p5: P5, x: number, y: number): Vehicle => {
     radius: 2,
     maxspeed: 10,
     maxforce: 1,
+    fled: false,
   };
 };
 
@@ -36,9 +38,10 @@ export const tick = (p5: P5, vehicle: Vehicle) => {
   }
 
   const mouse = p5.createVector(p5.mouseX, p5.mouseY);
-  if (!p5.mouseIsPressed) {
+  if (!p5.mouseIsPressed && mouse.x > 0 && mouse.y > 0) {
     const flee = fleeForce(vehicle, mouse);
     flee.mult(10);
+    if (flee.mag() > 0.1 && !vehicle.fled) vehicle.fled = true;
     applyForce(vehicle, flee);
   }
 };

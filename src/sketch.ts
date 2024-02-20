@@ -2,12 +2,15 @@ import P5 from 'p5';
 import _font from './assets/AvenirNextLTPro-Demi.otf';
 import { Vehicle, createVehicle, show, tick, update } from './vehicle';
 
+type State = 'hover' | 'press' | 'space' | 'type';
+
 export const sketch = (p5: P5) => {
   let font: P5.Font;
 
   const backgroundColor = [0, 0, 0];
   const fillColor = [255, 255, 255];
-  let text = 'type';
+  let text = 'hover';
+  let state: State = 'hover';
   const textSize = Math.min(p5.windowWidth / 3, 300);
   let vehicles: Vehicle[] = [];
   let exitingVehicles: Vehicle[] = [];
@@ -87,10 +90,20 @@ export const sketch = (p5: P5) => {
         exitingVehicles = exitingVehicles.filter((ev) => ev !== v);
       }
     });
+    if (state === 'hover' && vehicles.filter((v) => v.fled).length > 200) {
+      text = 'press';
+      state = 'press';
+      setText(p5, text);
+    }
   };
 
   p5.keyPressed = () => {
     if (p5.key === ' ') {
+      if (state === 'space') {
+        text = 'type';
+        state = 'type';
+        setText(p5, text);
+      }
       vehicles = vehicles.map((v) => {
         v.vel = p5.createVector(p5.random(-20, 20), p5.random(-20, 20));
         return v;
@@ -122,6 +135,11 @@ export const sketch = (p5: P5) => {
     });
   };
   p5.mouseReleased = () => {
+    if (state === 'press') {
+      text = 'space';
+      state = 'space';
+      setText(p5, text);
+    }
     // reset targets to original positions
     vehicles.forEach((v) => {
       v.target = v.home;
